@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sesoc.miniBoard.dao.BoardMapper">
+	<select id="boardCount" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			testboard
+		WHERE
+			boardid = #{boardID}
+		AND LOWER (
+			<choose>
+				<when test="searchItem eq 'title'">title</when>
+				<when test="searchItem eq 'content'">content</when>
+				<when test="searchItem eq 'userID'">userid</when>
+			</choose>
+			) LIKE '%' || LOWER(#{searchKeyword}) || '%'
+	</select>
+
+	<select id="getBoardList" resultType="board">
+		SELECT
+			*
+		FROM
+			testboard
+		WHERE
+			boardid = #{boardID}
+		AND LOWER (
+			<choose>
+				<when test="searchItem eq 'title'">title</when>
+				<when test="searchItem eq 'content'">content</when>
+				<when test="searchItem eq 'userID'">userid</when>
+			</choose>
+			) LIKE '%' || LOWER(#{searchKeyword}) || '%'
+		ORDER BY
+			boardnum DESC
+	</select>
+
+	<update id="newRead">
+		UPDATE
+			testboard
+		SET
+			hits = hits + 1
+		WHERE
+			boardnum = #{boardNum}
+	</update>
+
+	<select id="readBoard" resultType="board">
+		SELECT
+			*
+		FROM
+			testboard
+		WHERE
+			boardnum = #{boardNum}
+	</select>
+
+	<select id="readBoardRecently" resultType="board">
+		SELECT
+			*
+		FROM (
+			SELECT
+				*
+			FROM
+				testboard
+			WHERE
+				userID = #{userID}
+			ORDER BY
+				boardnum DESC
+		)
+		WHERE
+			ROWNUM = 1
+	</select>
+
+	<update id="like">
+		UPDATE
+			testboard
+		SET
+			<choose>
+				<when test="button gt 0">
+					likes = likes
+				</when>
+				<otherwise>
+					dislikes = dislikes
+				</otherwise>
+			</choose>
+			+ 1
+		WHERE
+			boardnum = #{boardNum}
+	</update>
+
+	<insert id="writeBoard" parameterType="board">
+		INSERT INTO
+			testboard
+		VALUES (
+			testboard_seq.NEXTVAL,
+			#{userID},
+			#{boardID},
+			#{title},
+			#{content},
+			DEFAULT,
+			#{originalFileName},
+			#{savedFileName},
+			DEFAULT,
+			DEFAULT,
+			DEFAULT
+		)
+	</insert>
+
+	<update id="updateBoard" parameterType="board">
+		UPDATE
+			testboard
+		SET
+			<if test="originalFileName neq null">
+				originalfilename = #{originalFileName},
+				savedfilename = #{savedFileName},
+			</if>
+			boardid = #{boardID},
+			title = #{title},
+			content = #{content}
+		WHERE
+			boardnum = #{boardNum}
+	</update>
+	
+	<delete id="deleteBoard" parameterType="board">
+		DELETE FROM
+			testboard
+		WHERE
+			boardnum = #{boardNum}
+		AND
+			userid = #{userID}
+	</delete>
+</mapper>

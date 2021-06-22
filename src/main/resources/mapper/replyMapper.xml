@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sesoc.miniBoard.dao.ReplyMapper">
+	<select id="getReplyList" resultType="reply">
+		SELECT
+			*
+		FROM
+			testreply
+		WHERE
+			boardnum = #{boardNum}
+		ORDER BY
+			replynum ASC
+	</select>
+
+	<insert id="writeReply" parameterType="reply">
+		INSERT INTO
+			testreply
+		VALUES (
+			reply_seq.NEXTVAL,
+			#{boardNum},
+			#{userID},
+			#{replyText},
+			DEFAULT
+		)
+	</insert>
+
+	<update id="updateReply" parameterType="reply">
+		UPDATE
+			testreply
+		SET
+			replytext = #{replyText}
+		WHERE
+			replynum = #{replyNum}
+		AND
+			userid = #{userID}
+	</update>
+
+	<delete id="deleteReply" parameterType="reply">
+		DELETE FROM
+			testreply
+		WHERE
+			replynum = #{replyNum}
+		AND
+			userid = #{userID}
+	</delete>
+</mapper>
